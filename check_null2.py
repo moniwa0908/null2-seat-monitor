@@ -97,6 +97,8 @@ html = f"""
 <h1>NULL² 10/31 空席監視</h1>
 
 <p>最終確認：{checked_at}（JST）</p>
+<button onclick="location.reload()">更新</button>
+
 <p>2名 / 14:30・14:50・15:10・15:30</p>
 
 <table border="1" cellpadding="8">
