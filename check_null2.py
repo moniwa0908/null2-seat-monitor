@@ -6,6 +6,9 @@ from urllib.request import Request, urlopen
 URL = "https://null2.nexus/api/v1/products/stocks?date=2026-10-31"
 TIMES = ["14:30:00", "14:50:00", "15:10:00", "15:30:00"]
 
+NTFY_TOPIC = "null2-moniwa-1031-x7k9"
+NTFY_URL = f"https://ntfy.sh/{NTFY_TOPIC}"
+
 request = Request(
     URL,
     headers={
@@ -50,16 +53,74 @@ for target_time in TIMES:
 jst = timezone(timedelta(hours=9))
 checked_at = datetime.now(jst).isoformat(timespec="seconds")
 
+any_available = any(x["two_seats_available"] for x in results)
+
 output = {
     "event_date": "2026-10-31",
     "party_size": 2,
     "checked_at_jst": checked_at,
-    "any_two_seats_available":
-        any(x["two_seats_available"] for x in results),
+    "any_two_seats_available": any_available,
     "slots": results,
 }
 
 Path("docs").mkdir(exist_ok=True)
+
+# 前回の状態を読み込む
+state_file = Path("docs/notify_state.json")
+previous_available = False
+
+if state_file.exists():
+    try:
+        previous_state = json.loads(
+            state_file.read_text(encoding="utf-8")
+        )
+        previous_available = bool(
+            previous_state.get("any_two_seats_available", False)
+        )
+    except Exception:
+        previous_available = False
+
+# 「空きなし → 空きあり」に変わった瞬間だけ通知
+if any_available and not previous_available:
+    available_times = [
+        x["time"]
+        for x in results
+        if x["two_seats_available"]
+    ]
+
+    message = (
+        "NULL² 空席あり！\n"
+        "10/31 2名分\n"
+        f"空き時間：{', '.join(available_times)}\n"
+        "https://null2.nexus/order"
+    )
+
+    notify_request = Request(
+        NTFY_URL,
+        data=message.encode("utf-8"),
+        method="POST",
+        headers={
+            "Title": "NULL² 空席通知",
+            "Priority": "high",
+            "Tags": "airplane,rotating_light",
+        },
+    )
+
+    with urlopen(notify_request, timeout=30) as response:
+        response.read()
+
+# 現在の状態を保存
+state_file.write_text(
+    json.dumps(
+        {
+            "any_two_seats_available": any_available,
+            "checked_at_jst": checked_at,
+        },
+        ensure_ascii=False,
+        indent=2,
+    ),
+    encoding="utf-8",
+)
 
 Path("docs/status.json").write_text(
     json.dumps(output, ensure_ascii=False, indent=2),
@@ -80,7 +141,7 @@ rows = "".join(
 
 message = (
     "希望時間に2名分の空きあり"
-    if output["any_two_seats_available"]
+    if any_available
     else "現在、希望時間に2名分の空きなし"
 )
 
