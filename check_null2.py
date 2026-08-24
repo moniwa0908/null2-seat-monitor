@@ -4,7 +4,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 URL = "https://null2.nexus/api/v1/products/stocks?date=2026-10-31"
-TIMES = ["14:30:00", "14:50:00", "15:10:00", "15:30:00"]
+TIMES = ["14:10:00","14:30:00", "14:50:00", "15:10:00", "15:30:00"]
 
 NTFY_TOPIC = "null2-moniwa-1031-x7k9"
 NTFY_URL = f"https://ntfy.sh/{NTFY_TOPIC}"
@@ -160,7 +160,7 @@ html = f"""
 <p>最終確認：{checked_at}（JST）</p>
 <button onclick="location.reload()">更新</button>
 
-<p>2名 / 14:30・14:50・15:10・15:30</p>
+<p>2名 / 14:10・14:30・14:50・15:10・15:30</p>
 
 <table border="1" cellpadding="8">
 <tr>
