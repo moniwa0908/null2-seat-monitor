@@ -1,7 +1,7 @@
 {
   "event_date": "2026-10-31",
   "party_size": 2,
-  "checked_at_jst": "2026-10-15T22:40:31+09:00",
+  "checked_at_jst": "2026-10-15T22:45:31+09:00",
   "any_two_seats_available": false,
   "slots": [
     {
@@ -12,14 +12,14 @@
     },
     {
       "time": "14:30",
-      "available": 1,
-      "status": "few",
+      "available": 0,
+      "status": "sold_out",
       "two_seats_available": false
     },
     {
       "time": "14:50",
-      "available": 0,
-      "status": "sold_out",
+      "available": 1,
+      "status": "few",
       "two_seats_available": false
     },
     {
